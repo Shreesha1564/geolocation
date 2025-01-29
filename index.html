@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geotagging App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Geotagging App</h1>
+    <div id="cameraContainer" style="display: none;">
+        <video id="video" autoplay></video>
+    </div>
+    <button id="openCameraButton">Open Camera</button>
+    <button id="captureButton" class="capture-button" style="display: none;">Capture</button>
+    <div id="overlay">
+        <p id="address"></p>
+        <p id="latitude"></p>
+        <p id="longitude"></p>
+    </div>
+    <script src="scratch.js"></script>
+</body>
+</html>
