@@ -42,26 +42,38 @@ async function captureImageAndLocation() {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // Get geolocation
-        navigator.geolocation.getCurrentPosition((position) => {
+        navigator.geolocation.getCurrentPosition(async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
 
             console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
-            // Update overlay text with coordinates
-            document.getElementById('latitude').textContent = `Latitude: ${latitude}`;
-            document.getElementById('longitude').textContent = `Longitude: ${longitude}`;
+            // Fetch address using Nominatim API
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await response.json();
+            console.log('Geocoding API response:', data);
 
-            // Display the image with overlay
-            const imgElement = document.createElement('img');
-            imgElement.src = canvas.toDataURL('image/png');
-            imgElement.style.width = '100%';
-            imgElement.style.height = '100%';
-            imgElement.style.objectFit = 'cover';
-            document.getElementById('cameraContainer').replaceChild(imgElement, video);
+            if (data && data.address) {
+                const address = data.display_name;
 
-            // Stop video stream after displaying the image
-            video.srcObject.getTracks().forEach(track => track.stop());
+                // Update overlay text
+                document.getElementById('address').textContent = `Address: ${address}`;
+                document.getElementById('latitude').textContent = `Latitude: ${latitude}`;
+                document.getElementById('longitude').textContent = `Longitude: ${longitude}`;
+
+                // Display the image with overlay
+                const imgElement = document.createElement('img');
+                imgElement.src = canvas.toDataURL('image/png');
+                imgElement.style.width = '100%';
+                imgElement.style.height = '100%';
+                imgElement.style.objectFit = 'cover';
+                document.getElementById('cameraContainer').replaceChild(imgElement, video);
+
+                // Stop video stream after displaying the image
+                video.srcObject.getTracks().forEach(track => track.stop());
+            } else {
+                throw new Error('No results from Geocoding API');
+            }
         }, (error) => {
             console.error('Error getting geolocation:', error);
             alert('Error getting geolocation: ' + error.message);
